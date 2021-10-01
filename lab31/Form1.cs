@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -39,13 +39,39 @@ namespace lab31
 
         private bool equalColors(Color c1, Color c2)
         {
-            return c1.R == c2.R && c1.G == c2.G && c1.B == c2.B;
+            return c1 == c2;
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (fill_flag == false)
-            {
+            //if (fill_flag == false)
+            //{
+            //    if (line)
+            //    {
+            //        if (bresenham)
+            //        {
+            //            drawLineBresenham(pen, line_st_x, line_st_y, e.X, e.Y);
+            //        }
+            //        else if (wu)
+            //        {
+            //            drawLineWu(pen, line_st_x, line_st_y, e.X, e.Y);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        line_st_x = e.X;
+            //        line_st_y = e.Y;
+            //    }
+            //    line = !line;
+            //}
+            //else if (fill_flag)
+            //{
+            //    area_color = (pictureBox1.Image as Bitmap).GetPixel(e.X, e.Y);
+            //    if (!equalColors(area_color, fill.Color)) 
+            //            rec_fill(e.X, e.Y);
+            //}
+     
+            
                 if (line)
                 {
                     if (bresenham)
@@ -63,19 +89,17 @@ namespace lab31
                     line_st_y = e.Y;
                 }
                 line = !line;
-            }
-            else if (fill_flag)
-            {
+    
                 area_color = (pictureBox1.Image as Bitmap).GetPixel(e.X, e.Y);
-                if (!equalColors(area_color, fill.Color)) 
-                        rec_fill(e.X, e.Y);
-            }
+                if (!equalColors( area_color, fill.Color))
+                    rec_fill(e.X, e.Y);
+
         }
 
         private void rec_fill(int x, int y)
         {
             Bitmap bitmap = pictureBox1.Image as Bitmap;
-            if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height && !equalColors(area_color, fill.Color))
+            if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height && !equalColors( area_color, fill.Color))
             {
                 Point leftBound = new Point(x, y);
                 Point rightBound = new Point(x, y);
