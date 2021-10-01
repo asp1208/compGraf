@@ -44,34 +44,8 @@ namespace lab31
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            //if (fill_flag == false)
-            //{
-            //    if (line)
-            //    {
-            //        if (bresenham)
-            //        {
-            //            drawLineBresenham(pen, line_st_x, line_st_y, e.X, e.Y);
-            //        }
-            //        else if (wu)
-            //        {
-            //            drawLineWu(pen, line_st_x, line_st_y, e.X, e.Y);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        line_st_x = e.X;
-            //        line_st_y = e.Y;
-            //    }
-            //    line = !line;
-            //}
-            //else if (fill_flag)
-            //{
-            //    area_color = (pictureBox1.Image as Bitmap).GetPixel(e.X, e.Y);
-            //    if (!equalColors(area_color, fill.Color)) 
-            //            rec_fill(e.X, e.Y);
-            //}
-     
-            
+            if (fill_flag == false)
+            {
                 if (line)
                 {
                     if (bresenham)
@@ -89,47 +63,53 @@ namespace lab31
                     line_st_y = e.Y;
                 }
                 line = !line;
-    
+            }
+            else if (fill_flag)
+            {
                 area_color = (pictureBox1.Image as Bitmap).GetPixel(e.X, e.Y);
-                if (!equalColors( area_color, fill.Color))
+                if (!equalColors(area_color, fill.Color))
                     rec_fill(e.X, e.Y);
-
+            }
         }
 
         private void rec_fill(int x, int y)
         {
+
             Bitmap bitmap = pictureBox1.Image as Bitmap;
-            if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height && !equalColors( area_color, fill.Color))
+            if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height - 1 && !equalColors(area_color, fill.Color))
             {
                 Point leftBound = new Point(x, y);
                 Point rightBound = new Point(x, y);
-                Color currentColor = area_color;
 
-                while (0 < leftBound.X && equalColors(bitmap.GetPixel(leftBound.X, y),area_color))
+                while (0 < leftBound.X && equalColors(bitmap.GetPixel(leftBound.X - 1, y), area_color))
                 {
                     leftBound.X -= 1;
                 }
 
-                while (rightBound.X < pictureBox1.Width - 1 && equalColors(bitmap.GetPixel(leftBound.X, y), area_color))
+                while (rightBound.X < pictureBox1.Width - 1 && equalColors(bitmap.GetPixel(rightBound.X + 1, y), area_color))
                 {
                     rightBound.X += 1;
                 }
 
                 drawLineBresenham(fill, leftBound.X, leftBound.Y, rightBound.X, rightBound.Y);
 
-                for (int i = leftBound.X; i < rightBound.X + 1; ++i)
+                for (int i = leftBound.X; i <= rightBound.X; ++i)
                 {
-                    rec_fill(i, y + 1);
+                    if (y < pictureBox1.Height - 1 && equalColors(area_color, bitmap.GetPixel(i, y + 1)))
+                    {
+                        rec_fill(i, y + 1);
+                    }
                 }
-                for (int i = leftBound.X; i < rightBound.X + 1; ++i)
+                for (int i = leftBound.X; i <= rightBound.X; ++i)
                 {
-                    if (y > 0)
+                    if (y > 0 && equalColors(area_color, bitmap.GetPixel(i, y - 1)))
                     {
                         rec_fill(i, y - 1);
                     }
                 }
 
             }
+           
         }
 
 
@@ -204,8 +184,8 @@ namespace lab31
                 var xpxl2 = x2;
                 for (var x = xpxl1 + 1; x <= xpxl2 - 1; x++)
                 {
-                    image.SetPixel(x, (int)intery, Color.FromArgb((int)((1 - (intery - (int)intery)) * 255), pen.Color.R, pen.Color.G, pen.Color.B));
-                    image.SetPixel(x, (int)intery + 1, Color.FromArgb((int)((intery - (int)intery) * 255), pen.Color.R, pen.Color.G, pen.Color.B));
+                    image.SetPixel(x, (int)intery, Color.FromArgb((int)((1 - (intery - (int)intery)) * 255), pen.Color));
+                    image.SetPixel(x, (int)intery + 1, Color.FromArgb((int)((intery - (int)intery) * 255), pen.Color));
                     pictureBox1.Invalidate();
                     intery = intery + gradient;
                 }
@@ -229,8 +209,8 @@ namespace lab31
                 var ypxl2 = y2;
                 for (var y = ypxl1 + 1; y <= ypxl2 - 1; y++)
                 {
-                    image.SetPixel((int)interx, y, Color.FromArgb((int)((1 - (interx - (int)interx)) * 255), pen.Color.R, pen.Color.G, pen.Color.B));
-                    image.SetPixel((int)interx + 1, y, Color.FromArgb((int)((interx - (int)interx) * 255), pen.Color.R, pen.Color.G, pen.Color.B));
+                    image.SetPixel((int)interx, y, Color.FromArgb((int)((1 - (interx - (int)interx)) * 255), pen.Color));
+                    image.SetPixel((int)interx + 1, y, Color.FromArgb((int)((interx - (int)interx) * 255), pen.Color));
                     pictureBox1.Invalidate();
                     interx = interx + gradient;
                 }
