@@ -97,19 +97,27 @@ namespace lab4
 
         bool pensil = false;
         bool line = false;
+        bool polygon = false;
+        bool segment = false;
         private void button2_Click(object sender, EventArgs e)
         {
             pensil = false;
             line = true;
+            polygon = false;
+            segment = false;
         }
         private void button3_Click(object sender, EventArgs e)
         {
             pensil = true;
             line = false;
+            polygon = false;
+            segment = false;
         }
 
         int line_st_x, line_st_y;
-
+        private int firstX, firstY, lastX, lastY;
+        private bool wasPolygon = false;
+        private Point segmentFrom, segmentTo, point;
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             if (line)
@@ -122,10 +130,126 @@ namespace lab4
                 line_st_y = e.Y;
             }
             line = !line;
+            
+            if (polygon)
+            {
+                wasPolygon = true;
+                if (firstX == 0 && firstY == 0)
+                {
+                    firstX = e.X;
+                    firstY = e.Y;
+                    lastX = e.X;
+                    lastY = e.Y;
+                }
+                else
+                {
+                    graphics.DrawLine(pen, lastX, lastY, e.X, e.Y);
+                    lastX = e.X;
+                    lastY = e.Y;
+                    graphics.Flush();
+                }
+            }
+            if (!polygon && wasPolygon)
+            {
+                graphics.DrawLine(pen, lastX, lastY, firstX, firstY);
+                graphics.Flush();
+                firstX = 0;
+                firstY = 0;
+                wasPolygon = false;
+                var image = (Bitmap)pictureBox1.Image;
+                image.SetPixel( e.X, e.Y, pen.Color);
+                pictureBox1.Invalidate();
+                BelongsToPolygon(e.X, e.Y);
+            }
+
+            if (segment)
+            {
+                if (segmentFrom.IsEmpty)
+                {
+                    segmentFrom.X = e.X;
+                    segmentFrom.Y = e.Y;
+                }
+                else if (segmentTo.IsEmpty)
+                {
+                    segmentTo.X = e.X;
+                    segmentTo.Y = e.Y;
+                    graphics.DrawLine(pen, segmentFrom, segmentTo);
+                }
+                else
+                {
+                    point.X = e.X;
+                    point.Y = e.Y;
+                    var image = (Bitmap)pictureBox1.Image;
+                    image.SetPixel( e.X, e.Y, pen.Color);
+                    pictureBox1.Invalidate();
+                    ClassifyPointPosition(segmentFrom, segmentTo, point);
+                    segmentFrom = Point.Empty;
+                    segmentTo = Point.Empty;
+                }
+            }
+            if (!segment)
+            {
+                segmentFrom = Point.Empty;
+                segmentTo = Point.Empty;
+                point = Point.Empty;
+            }
+        }
+
+        void ClassifyPointPosition(Point segmentFrom, Point segmentTo, Point point)
+        {
+            var b = new Point(point.X - segmentFrom.X, segmentFrom.Y - point.Y);
+            var a = new Point(segmentTo.X - segmentFrom.X, segmentFrom.Y - segmentTo.Y);
+            var left = b.Y * a.X - b.X * a.Y > 0;
+            graphics.DrawString(left ? "Точка слева" : "Точка справа", new Font(FontFamily.GenericMonospace, 8),
+                Brushes.DarkRed, new PointF(point.X + 5, point.Y - 15));
+        }
+
+        void BelongsToPolygon(int x, int y)
+        {
+            var intersections = 0;
+            var currentX = x + 1;
+            var image = (Bitmap) pictureBox1.Image;
+            var lastRes = false;
+            var backgroundColor = image.GetPixel(currentX, y);
+            while (currentX < pictureBox1.Image.Width)
+            {
+                if (image.GetPixel(currentX, y) != backgroundColor)
+                {
+                    if (!lastRes)
+                    {
+                        lastRes = true;
+                        intersections++;
+                    }
+                }
+                else lastRes = false;
+                currentX++;
+            }
+
+            var inside = intersections % 2 == 1;
+            
+            graphics.DrawString(inside ? "Точка внутри" : "Точка снаружи", new Font(FontFamily.GenericMonospace, 8),
+                Brushes.DarkRed, new PointF(x + 5, y - 15));
         }
 
         private void button2_MouseClick(object sender, MouseEventArgs e)
         {
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            pensil = false;
+            line = false;
+            polygon = !polygon;
+            segment = false;
+        }
+
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            pensil = false;
+            line = false;
+            polygon = false;
+            segment = true;
         }
     }
 }

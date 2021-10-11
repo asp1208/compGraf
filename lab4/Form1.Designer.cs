@@ -24,8 +24,8 @@ namespace lab4
         #region Код, автоматически созданный конструктором форм Windows
 
         /// <summary>
-        /// Требуемый метод для поддержки конструктора — не изменяйте 
-        /// содержимое этого метода с помощью редактора кода.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
@@ -33,7 +33,9 @@ namespace lab4
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.многоугольник = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize) (this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -81,21 +83,46 @@ namespace lab4
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // многоугольник
+            // 
+            this.многоугольник.Location = new System.Drawing.Point(29, 215);
+            this.многоугольник.Name = "многоугольник";
+            this.многоугольник.Size = new System.Drawing.Size(99, 34);
+            this.многоугольник.TabIndex = 4;
+            this.многоугольник.Text = "полигон";
+            this.многоугольник.UseVisualStyleBackColor = true;
+            this.многоугольник.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(29, 276);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(99, 29);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "ребро";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1146, 502);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.многоугольник);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
             this.Name = "Form1";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize) (this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
-
         }
+
+        private System.Windows.Forms.Button button5;
+
+        private System.Windows.Forms.Button многоугольник;
 
         #endregion
 
