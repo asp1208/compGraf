@@ -115,9 +115,10 @@ namespace lab4
         }
 
         int line_st_x, line_st_y;
-        private int firstX, firstY, lastX, lastY;
+        private Point first, last;
         private bool wasPolygon = false;
         private Point segmentFrom, segmentTo, point;
+        List<Point> polygonPoints = new List<Point>();
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             if (line)
@@ -131,68 +132,68 @@ namespace lab4
             }
             line = !line;
             
-            if (polygon)
-            {
-                wasPolygon = true;
-                if (firstX == 0 && firstY == 0)
-                {
-                    firstX = e.X;
-                    firstY = e.Y;
-                    lastX = e.X;
-                    lastY = e.Y;
-                }
-                else
-                {
-                    graphics.DrawLine(pen, lastX, lastY, e.X, e.Y);
-                    lastX = e.X;
-                    lastY = e.Y;
-                    graphics.Flush();
-                }
-            }
-            if (!polygon && wasPolygon)
-            {
-                graphics.DrawLine(pen, lastX, lastY, firstX, firstY);
-                graphics.Flush();
-                firstX = 0;
-                firstY = 0;
-                wasPolygon = false;
-                var image = (Bitmap)pictureBox1.Image;
-                image.SetPixel( e.X, e.Y, pen.Color);
-                pictureBox1.Invalidate();
-                BelongsToPolygon(e.X, e.Y);
-            }
+            if (polygon || wasPolygon)
+                DrawPolygon(e);
 
             if (segment)
-            {
-                if (segmentFrom.IsEmpty)
-                {
-                    segmentFrom.X = e.X;
-                    segmentFrom.Y = e.Y;
-                }
-                else if (segmentTo.IsEmpty)
-                {
-                    segmentTo.X = e.X;
-                    segmentTo.Y = e.Y;
-                    graphics.DrawLine(pen, segmentFrom, segmentTo);
-                }
-                else
-                {
-                    point.X = e.X;
-                    point.Y = e.Y;
-                    var image = (Bitmap)pictureBox1.Image;
-                    image.SetPixel( e.X, e.Y, pen.Color);
-                    pictureBox1.Invalidate();
-                    ClassifyPointPosition(segmentFrom, segmentTo, point);
-                    segmentFrom = Point.Empty;
-                    segmentTo = Point.Empty;
-                }
-            }
+                DrawSegment(e);
+
             if (!segment)
             {
                 segmentFrom = Point.Empty;
                 segmentTo = Point.Empty;
                 point = Point.Empty;
             }
+        }
+
+        void DrawPolygon(MouseEventArgs e)
+        {
+            if (polygon)
+            {   
+                wasPolygon = true;
+                polygonPoints.Add(new Point(e.X, e.Y));
+            }
+            if (!polygon && wasPolygon)
+            {
+                for (int i = 0; i < polygonPoints.Count - 1; i++)
+                {
+                    graphics.DrawLine(pen, polygonPoints[i], polygonPoints[i + 1]);
+                }
+                graphics.DrawLine(pen, polygonPoints[0], polygonPoints[polygonPoints.Count - 1]);
+                wasPolygon = false;
+                
+                var image = (Bitmap)pictureBox1.Image;
+                image.SetPixel(e.X, e.Y, pen.Color);
+                pictureBox1.Invalidate();
+                BelongsToPolygon(e.X, e.Y);
+            }
+        }
+
+        void DrawSegment(MouseEventArgs e)
+        {
+            if (segmentFrom.IsEmpty)
+            {
+                segmentFrom.X = e.X;
+                segmentFrom.Y = e.Y;
+            }
+            else if (segmentTo.IsEmpty)
+            {
+                segmentTo.X = e.X;
+                segmentTo.Y = e.Y;
+                graphics.DrawLine(pen, segmentFrom, segmentTo);
+            }
+            else
+            {
+                point.X = e.X;
+                point.Y = e.Y;
+                var image = (Bitmap)pictureBox1.Image;
+                image.SetPixel( e.X, e.Y, pen.Color);
+                pictureBox1.Invalidate();
+                ClassifyPointPosition(segmentFrom, segmentTo, point);
+                segmentFrom = Point.Empty;
+                segmentTo = Point.Empty;
+            }
+            
         }
 
         void ClassifyPointPosition(Point segmentFrom, Point segmentTo, Point point)
