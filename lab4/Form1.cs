@@ -29,6 +29,11 @@ namespace lab4
         {
             graphics.Clear(Color.White);
             pictureBox1.Invalidate();
+            polygonPoints = new List<Point>();
+            polygon = false;
+            wasPolygon = false;
+            line = false;
+            wasLine = false;
         }
 
 
@@ -116,21 +121,13 @@ namespace lab4
 
         int line_st_x, line_st_y;
         private Point first, last;
-        private bool wasPolygon = false;
+        private bool wasPolygon = false, wasLine = false;
         private Point segmentFrom, segmentTo, point;
         List<Point> polygonPoints = new List<Point>();
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (line)
-            {
-                drawLineBresenham(pen, line_st_x, line_st_y, e.X, e.Y);
-            }
-            else
-            {
-                line_st_x = e.X;
-                line_st_y = e.Y;
-            }
-            line = !line;
+            if (line || wasLine)
+                DrawLine(e);
             
             if (polygon || wasPolygon)
                 DrawPolygon(e);
@@ -143,6 +140,23 @@ namespace lab4
                 segmentFrom = Point.Empty;
                 segmentTo = Point.Empty;
                 point = Point.Empty;
+            }
+        }
+
+        void DrawLine(MouseEventArgs e)
+        {
+            if (line)
+            {
+                drawLineBresenham(pen, line_st_x, line_st_y, e.X, e.Y);
+                wasLine = true;
+                line = false;
+            }
+            else if (wasLine)
+            {
+                line_st_x = e.X;
+                line_st_y = e.Y;
+                wasLine = false;
+                line = true;
             }
         }
 
@@ -205,30 +219,28 @@ namespace lab4
                 Brushes.DarkRed, new PointF(point.X + 5, point.Y - 15));
         }
 
+        double Angle(Point point, Point ray1, Point ray2)
+        {
+            var vector1 = new Point(ray1.X - point.X, ray1.Y - point.Y);
+            var vector2 = new Point(ray2.X - point.X, ray2.Y - point.Y);
+            var numerator = vector1.X * vector2.X + vector1.Y * vector2.Y;
+            var lengthToFirst = Math.Sqrt(Math.Pow((ray1.X - point.X), 2) + Math.Pow(ray1.Y - point.Y, 2));
+            var lengthToSecond = Math.Sqrt(Math.Pow((ray2.X - point.X), 2) + Math.Pow(ray2.Y - point.Y, 2));
+            var det = vector1.X * vector2.Y - vector1.Y * vector2.X;
+            return Math.Acos(numerator / (lengthToFirst * lengthToSecond)) * Math.Sign(det);
+        }
+
         void BelongsToPolygon(int x, int y)
         {
-            var intersections = 0;
-            var currentX = x + 1;
-            var image = (Bitmap) pictureBox1.Image;
-            var lastRes = false;
-            var backgroundColor = image.GetPixel(currentX, y);
-            while (currentX < pictureBox1.Image.Width)
+            var sum = 0.0;
+            sum += Angle(new Point(x, y), polygonPoints.Last(), polygonPoints.First());
+            for (var i = 0; i < polygonPoints.Count - 1; i++)
             {
-                if (image.GetPixel(currentX, y) != backgroundColor)
-                {
-                    if (!lastRes)
-                    {
-                        lastRes = true;
-                        intersections++;
-                    }
-                }
-                else lastRes = false;
-                currentX++;
+                sum += Angle(new Point(x, y), polygonPoints[i], polygonPoints[i + 1]);
             }
 
-            var inside = intersections % 2 == 1;
-            
-            graphics.DrawString(inside ? "Точка внутри" : "Точка снаружи", new Font(FontFamily.GenericMonospace, 8),
+            var outside = Math.Abs(sum) < 0.1;
+            graphics.DrawString(outside ? "Точка снаружи" : "Точка внутри", new Font(FontFamily.GenericMonospace, 8),
                 Brushes.DarkRed, new PointF(x + 5, y - 15));
         }
 
